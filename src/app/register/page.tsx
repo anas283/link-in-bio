@@ -1,10 +1,11 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { MoveLeft } from "lucide-react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 type RegisterInputs = {
   email: string,
@@ -14,12 +15,16 @@ type RegisterInputs = {
 const Register = () => {
   const { register, handleSubmit, watch } = useForm<RegisterInputs>();
   const [isClaimed, setIsClaimed] = useState(false);
+  const router = useRouter();
 
-  const onSubmit: SubmitHandler<RegisterInputs> = data => console.log(data);
+  const onSubmit: SubmitHandler<RegisterInputs> = data => {
+    console.log(data);
+    router.push('/add-link');
+  }
 
   return (
     <div className="min-h-screen min-w-screen flex items-center">
-      <div className="w-full max-w-5xl flex mx-auto justify-between ">
+      <div className="max-w-6xl flex mx-auto justify-between">
         
         <div className="w-1/2 pr-10 flex items-center">
           {isClaimed ?
