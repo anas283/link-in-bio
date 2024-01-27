@@ -12,7 +12,7 @@ const ClaimUsername = () => {
           <div className="text-2xl font-medium">
             username
           </div>
-          <div className="text-sm text-white bg-green-500 rounded-md px-2 py-1 absolute -top-3 -right-5 rotate-3 border shadow">
+          <div className="text-sm text-white bg-green-500 rounded-md px-2 py-1 absolute -top-3 -right-5 rotate-3 shadow">
             Available
           </div>
         </div>
