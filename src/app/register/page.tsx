@@ -2,10 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { MoveLeft } from "lucide-react";
+import { useCallback, useState } from "react";
+import { Check, Loader2, MoveLeft, X } from "lucide-react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import debounce from "lodash/debounce";
 
 type RegisterInputs = {
   email: string,
@@ -17,6 +18,24 @@ const Register = () => {
   const [isClaimed, setIsClaimed] = useState(false);
   const router = useRouter();
 
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [available, setAvailable] = useState(false);
+
+  const onSearch = (e: any) => {
+    setLoading(true);
+    setSearch(e.target.value);
+    debouncedHandleSearch(e.target.value)
+  }
+
+  const handleSearch = (e: any) => {
+    console.log('searching...');
+    setLoading(false);
+    setAvailable(true);
+  }
+
+  const debouncedHandleSearch = useCallback(debounce(handleSearch, 800), []);
+
   const onSubmit: SubmitHandler<RegisterInputs> = data => {
     console.log(data);
     router.push('/add-link');
@@ -24,7 +43,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen min-w-screen flex items-center">
-      <div className="max-w-6xl flex mx-auto justify-between">
+      <div className="max-w-6xl flex mx-auto justify-between px-8">
         
         <div className="w-1/2 pr-10 flex items-center">
           {isClaimed ?
@@ -57,8 +76,40 @@ const Register = () => {
             <div>
               <h1 className="text-3xl font-bold">First, claim your unique link</h1>
               <h6 className="text-gray-500 mt-3">The good ones are still available!</h6>
-              <Input type="email" placeholder="your-name" className="mt-5" />
-              <Button className="mt-5" onClick={() => setIsClaimed(!isClaimed)}>Grab my link</Button>
+              <div className="relative">
+                <Input type="email" placeholder="your-name" className="mt-5"
+                  value={search}
+                  onChange={onSearch}
+                />
+                {search &&
+                  <div>
+                    {loading ? (
+                      <div>
+                        <div className="w-4 h-4 rounded-full flex justify-center items-center absolute top-2.5 right-3">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        {available ? (
+                          <div className="w-4 h-4 rounded-full bg-green-500 flex justify-center items-center absolute top-2.5 right-3">
+                            <Check className="w-3 h-3 text-white" />
+                          </div>
+                        ) : (
+                          <div className="w-4 h-4 rounded-full bg-red-500 flex justify-center items-center absolute top-2.5 right-3">
+                            <X className="w-3 h-3 text-white" />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                }
+              </div>
+              <Button className={`mt-5 ${search ? "visible":"invisible"}`} onClick={() => setIsClaimed(!isClaimed)}
+                disabled={loading}
+              >
+                Grab my link
+              </Button>
             </div>
           }
         </div>
