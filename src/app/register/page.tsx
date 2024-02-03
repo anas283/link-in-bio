@@ -15,7 +15,7 @@ type RegisterInputs = {
 }
 
 const Register = () => {
-  const { register, handleSubmit, watch } = useForm<RegisterInputs>();
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterInputs>();
   const [isClaimed, setIsClaimed] = useState(false);
   const router = useRouter();
 
@@ -30,9 +30,9 @@ const Register = () => {
   }
 
   const handleSearch = async (username: string) => {
-    const links = (await supabase.from('links').select()).data;
+    const users = (await supabase.from('users').select()).data;
 
-    let isUsernameExist = links?.find((data) => { 
+    let isUsernameExist = users?.find((data) => { 
       return data['username'] === username
     })
 
@@ -48,8 +48,31 @@ const Register = () => {
   const debouncedHandleSearch = useCallback(debounce(handleSearch, 800), []);
 
   const onSubmit: SubmitHandler<RegisterInputs> = data => {
-    console.log(data);
-    router.push('/add-link');
+    setLoading(true);
+    signUpNewUser(data);
+  }
+
+  const signUpNewUser = async (user: RegisterInputs) => {
+    const { data, error } = await supabase.auth.signUp({
+      email: user.email,
+      password: user.password,
+    })
+
+    if (data) {
+      registerUsername(user.email);
+    }
+  }
+
+  const registerUsername = async (email: string) => {
+    const { error } = await supabase
+      .from("users")
+      .insert({ username: search, email: email });
+
+    setLoading(false);
+
+    if (!error) {
+      router.push('/add-link');
+    }
   }
 
   return (
@@ -69,15 +92,25 @@ const Register = () => {
                   {...register("email")}
                 />
                 <Input type="password" placeholder="Password" className="mt-5"
-                  {...register("password")}
+                  {...register("password", { required: true, minLength: 8 })}
                 />
+                {errors.password && 
+                  <div className="text-sm text-red-500 mt-2">Password must be at least 8 characters</div>
+                }
               </div>
               <div className={`mt-4 text-sm ${watch("email") ? "invisible" : "flex"}`}>
                 OR
               </div>
               <div className="mt-5">
                 {watch("email") ?
-                  <Button type="submit">Create Account</Button>
+                  <div>
+                    <Button type="submit" disabled={loading}>
+                      {loading &&
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      }
+                      Create Account
+                    </Button>
+                  </div>
                 :
                   <Button>Sign up with Google</Button>
                 }
