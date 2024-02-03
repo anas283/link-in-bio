@@ -7,6 +7,7 @@ import { Check, Loader2, MoveLeft, X } from "lucide-react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import debounce from "lodash/debounce";
+import supabase from "@/utils/supabase";
 
 type RegisterInputs = {
   email: string,
@@ -28,10 +29,20 @@ const Register = () => {
     debouncedHandleSearch(e.target.value)
   }
 
-  const handleSearch = (e: any) => {
-    console.log('searching...');
+  const handleSearch = async (username: string) => {
+    const links = (await supabase.from('links').select()).data;
+
+    let isUsernameExist = links?.find((data) => { 
+      return data['username'] === username
+    })
+
+    if (isUsernameExist) {
+      setAvailable(false);
+    } else {
+      setAvailable(true);
+    }
+
     setLoading(false);
-    setAvailable(true);
   }
 
   const debouncedHandleSearch = useCallback(debounce(handleSearch, 800), []);
@@ -44,7 +55,7 @@ const Register = () => {
   return (
     <div className="min-h-screen min-w-screen flex items-center">
       <div className="max-w-6xl flex mx-auto justify-between px-8">
-        
+
         <div className="w-1/2 pr-10 flex items-center">
           {isClaimed ?
             <form onSubmit={handleSubmit(onSubmit)}>
