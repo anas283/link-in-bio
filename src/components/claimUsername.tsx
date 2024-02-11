@@ -1,6 +1,11 @@
+import Link from "next/link";
 import { Button } from "./ui/button"
 
-const ClaimUsername = () => {
+interface Props {
+  username: string;
+}
+
+const ClaimUsername = ({username}: Props) => {
   return (
     <div className="min-h-screen min-w-screen flex items-center">
       <div className="w-full max-w-6xl mx-auto">
@@ -10,7 +15,7 @@ const ClaimUsername = () => {
         <div className="w-fit flex mx-auto bg-gray-50 rounded-xl border p-5 mt-8 relative">
           <div className="text-2xl text-gray-500 font-medium">link.me/</div>
           <div className="text-2xl font-medium">
-            username
+            {username}
           </div>
           <div className="text-sm text-white bg-green-500 rounded-md px-2 py-1 absolute -top-3 -right-5 rotate-3 shadow">
             Available
@@ -21,7 +26,9 @@ const ClaimUsername = () => {
           And it’s all free.
           <Button variant="link" className="p-0 ml-1 text-md text-blue-500">Learn more</Button>
         </div>
-        <Button className="mt-5 flex mx-auto text-md">Claim Now</Button>
+        <Link href="register">
+          <Button className="mt-5 flex mx-auto text-md">Claim Now</Button>
+        </Link>
       </div>
     </div>
   )
